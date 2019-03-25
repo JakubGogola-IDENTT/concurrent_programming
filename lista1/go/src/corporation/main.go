@@ -1,5 +1,0 @@
-package corporation
-
-func main() {
-
-}
