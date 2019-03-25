@@ -23,7 +23,7 @@ func client(clientID int, purchase chan<- buyRequest) {
 		}
 
 		if params.IsVerboseModeOn {
-			fmt.Printf("Client %d bought product with value %d\n", clientID, response.value)
+			fmt.Printf("\u001b[34mClient\u001b[0m %d bought product with value %d\n", clientID, response.value)
 		}
 
 		time.Sleep(params.ClientDelay)

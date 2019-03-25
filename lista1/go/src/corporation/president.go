@@ -35,7 +35,8 @@ func president(tasks chan<- task) {
 
 		// Show info about new task is verbose mode is
 		if params.IsVerboseModeOn {
-			fmt.Printf("New task was added: %d %c %d\n", firstArg, operators[operation], secondArg)
+			fmt.Printf("\u001b[31mPresident\u001b[0m added new task %d %c %d\n", firstArg, operators[operation],
+				secondArg)
 		}
 
 		// Random delay of president

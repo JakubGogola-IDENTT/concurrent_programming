@@ -30,8 +30,8 @@ func worker(workerID int, taskRequests chan<- taskRequest, products chan<- produ
 		newProduct := product{value: val}
 
 		if params.IsVerboseModeOn {
-			fmt.Printf("Worker %d made product: %d %c %d = %d\n", workerID, taskToDo.firstArg, taskToDo.operator,
-				taskToDo.secondArg, val)
+			fmt.Printf("\u001b[32mWorker\u001b[0m %d made product: %d %c %d = %d\n", workerID, taskToDo.firstArg,
+				taskToDo.operator, taskToDo.secondArg, val)
 		}
 
 		// Send new product to channel
