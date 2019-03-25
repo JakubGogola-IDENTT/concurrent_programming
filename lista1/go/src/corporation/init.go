@@ -8,7 +8,7 @@ import (
 
 // parseFlags parses command-line flags
 func parseFlags() {
-	mode := flag.Bool("i", false, "desactivates verbose mode and activates interactive mode")
+	mode := flag.Bool("i", false, "deactivates verbose mode and activates interactive mode")
 
 	flag.Parse()
 
