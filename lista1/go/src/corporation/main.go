@@ -1,0 +1,5 @@
+package corporation
+
+func main() {
+
+}
