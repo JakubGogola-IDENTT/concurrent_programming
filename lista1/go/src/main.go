@@ -1,9 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"corporation"
+)
 
 func main() {
-	fmt.Println("########################################")
-	fmt.Println("### Welcome in corporation simulator ###")
-	fmt.Println("########################################")
+	corporation.Init()
 }

@@ -2,7 +2,11 @@ package corporation
 
 import "fmt"
 
-func tasksServer(taskRequests <-chan *taskRequest, tasks <-chan task, info <-chan struct{}) {
+// tasksServer handles list of task to do.
+// taskRequest is channel where requests from workers for new tasks are sended.
+// tasks is channel where president sends new tasks.
+// info is channel where user sends request for information about list of tasks to do.
+func tasksServer(taskRequests <-chan taskRequest, tasks <-chan task, info <-chan struct{}) {
 	// List of tasks to do.
 	tasksToDo := make([]task, 0)
 

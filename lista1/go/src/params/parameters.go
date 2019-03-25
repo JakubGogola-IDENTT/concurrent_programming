@@ -14,6 +14,15 @@ var Bound = 2137
 // WorkerDelay is delay of single worker
 var WorkerDelay = 3 * time.Second
 
+// ClientDelay is delay of client
+var ClientDelay = 5 * time.Second
+
+// NumOfWorkers is number of currently active workers
+var NumOfWorkers = 4
+
+// NumOfClients is number of currently active clients
+var NumOfClients = 8
+
 // GetPresidentDelay returns random delay for president
 func GetPresidentDelay() time.Duration {
 	delaySeed := 5

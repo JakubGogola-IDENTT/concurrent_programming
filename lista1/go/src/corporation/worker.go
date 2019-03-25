@@ -10,17 +10,17 @@ import (
 // workerId is id of current worker
 // tasks is channel with task to do.
 // products is channel where final product is sended.
-func worker(workerID int, taskRequests chan<- *taskRequest, products chan<- product) {
+func worker(workerID int, taskRequests chan<- taskRequest, products chan<- product) {
 	// Infinite loop of worker
 	for {
-		var taskToDo task
+		//var taskToDo task
 
 		// Prepare and send new request
 		request := taskRequest{response: make(chan task)}
-		taskRequests <- &request
+		taskRequests <- request
 
 		// Check response
-		taskToDo = <-request.response
+		taskToDo := <-request.response
 		if taskToDo.operation == nil {
 			continue
 		}
@@ -30,7 +30,7 @@ func worker(workerID int, taskRequests chan<- *taskRequest, products chan<- prod
 		newProduct := product{value: val}
 
 		if params.IsVerboseModeOn {
-			fmt.Printf("Worker %d made product: %d %c %d = %d", workerID, taskToDo.firstArg, taskToDo.operator,
+			fmt.Printf("Worker %d made product: %d %c %d = %d\n", workerID, taskToDo.firstArg, taskToDo.operator,
 				taskToDo.secondArg, val)
 		}
 
