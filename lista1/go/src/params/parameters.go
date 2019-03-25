@@ -18,7 +18,7 @@ var WorkerDelay = 5 * time.Second
 var ClientDelay = 6 * time.Second
 
 // NumOfWorkers is number of currently active workers
-var NumOfWorkers = 5
+var NumOfWorkers = 10
 
 // NumOfClients is number of currently active clients
 var NumOfClients = 20
