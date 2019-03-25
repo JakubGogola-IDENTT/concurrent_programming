@@ -1,6 +1,7 @@
 package corporation
 
 import (
+	"fmt"
 	"math/rand"
 	"params"
 	"time"
@@ -9,6 +10,7 @@ import (
 // president is functions which generates new task for workers.
 // tasks is channel where tasks are sended.
 func president(tasks chan<- task) {
+	// Setting random seed using system clock
 	rand.Seed(time.Now().UnixNano())
 
 	// Map of functions which define operations.
@@ -17,17 +19,24 @@ func president(tasks chan<- task) {
 	// Map of operators matching functions which define operations.
 	operators := [4]byte{'+', '-', '*', '/'}
 
+	// Infinite loop of president
 	for {
 		// Generating parameters
-		firstArg := rand.Intn(2137)
-		secondArg := rand.Intn(2137)
+		firstArg := rand.Intn(params.Bound)
+		secondArg := rand.Intn(params.Bound)
 		operation := rand.Intn(len(operationFuncs))
 
+		// Structure of new task
 		newTask := task{firstArg: firstArg, secondArg: secondArg,
 			operation: operationFuncs[operation], operator: operators[operation]}
 
 		// Sending new task to channel
 		tasks <- newTask
+
+		// Show info about new task is verbose mode is
+		if params.IsVerboseModeOn {
+			fmt.Printf("New task was added: %d %c %d\n", firstArg, secondArg, operators[operation])
+		}
 
 		// Random delay of president
 		time.Sleep(params.GetPresidentDelay())
