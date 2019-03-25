@@ -31,8 +31,9 @@ func tasksServer(taskRequests <-chan taskRequest, tasks <-chan task, info <-chan
 				fmt.Println("List of tasks is empty!")
 			} else {
 				fmt.Println("Tasks waiting for workers:")
-				for t := range tasksToDo {
-					fmt.Println(t)
+				for i := range tasksToDo {
+					fmt.Printf("\u001b[36mTask\u001b[0m %d: %d %c %d\n", i, tasksToDo[i].firstArg, tasksToDo[i].operator,
+						tasksToDo[i].secondArg)
 				}
 			}
 		}

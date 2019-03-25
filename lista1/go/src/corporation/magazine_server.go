@@ -28,8 +28,8 @@ func magazineServer(manufacturedProducts <-chan product, purchases <-chan buyReq
 				fmt.Println("List of products is empty!")
 			} else {
 				fmt.Println("Stored products: ")
-				for p := range storedProducts {
-					fmt.Println(p)
+				for i := range storedProducts {
+					fmt.Printf("\u001b[35mProduct\u001b[0m %d with value %d\n", i, storedProducts[i].value)
 				}
 			}
 		}
