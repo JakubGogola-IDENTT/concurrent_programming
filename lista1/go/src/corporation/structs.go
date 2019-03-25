@@ -7,10 +7,27 @@ type task struct {
 	firstArg  int
 	secondArg int
 	operation func(int, int) int
+	operator  byte
 }
 
 // product is struct which represents product.
 // value is value which was computed by worker.
 type product struct {
 	value int
+}
+
+// taskRequest is helper structure for getting task from tasks list
+type taskRequest struct {
+	response chan task
+}
+
+// clientRequest is helper structure for buiyng product from magazine
+type buyRequest struct {
+	response chan product
+}
+
+// storeRequest is helper structure for storing product in magazine
+type storeRequest struct {
+	manufacturedProduct product
+	response            chan bool
 }

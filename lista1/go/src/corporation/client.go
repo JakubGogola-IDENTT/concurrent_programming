@@ -1,5 +1,5 @@
 package corporation
 
-func client() {
+func client(clientID int, purchase chan<- buyRequest) {
 
 }
