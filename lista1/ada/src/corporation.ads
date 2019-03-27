@@ -15,5 +15,6 @@ package Corporation is
    type Tasks_To_Do is array (Integer range<>) of Corpo_Task;
    type Products is array (Integer range<>) of Product;
    
+   --  function Get_Boss_Delay return Duration;
    procedure Production;
 end Corporation;

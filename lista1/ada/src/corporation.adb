@@ -1,5 +1,7 @@
 with Ada.Text_IO; use Ada.Text_IO;
+with Ada.Integer_Text_IO; use Ada.Integer_Text_IO;
 with Ada.Numerics.Discrete_Random;
+with Ada.Numerics.Float_Random;
 with Parameters; use Parameters;
 with Operations; use Operations;
 
@@ -9,7 +11,9 @@ package body Corporation is
       -- Tasks
       task type Boss;
       task type Worker (ID : Integer);
+      type Worker_Access is access Worker;
       task type Client (ID : Integer);
+      type Client_Access is access Client;
    
       task type List_Server is
 	 entry Add_New_Task (New_Task : in Corpo_Task);
@@ -45,7 +49,7 @@ package body Corporation is
 	    or
 	       when Elements > 0 =>
 		  accept Get_Task (New_Task : out Corpo_Task) do
-		     New_Task := Tasks_List (Elements);
+		     New_Task := Tasks_List (Elements - 1);
 		     Elements := Elements - 1;
 		  end Get_Task;
 	    or
@@ -71,32 +75,36 @@ package body Corporation is
 	 Operator_Type : Integer;
 	 New_Task : Corpo_Task;
       begin
-	 First_Arg := Random (G);
-	 Second_Arg := Random (G);
-      
-	 Operator_Type := (abs (First_Arg + Second_Arg)) mod 4;
-      
-	 case Operator_Type is 
-	 when 0 =>
-	    Operator := '+';
-	 when 1 =>
-	    Operator := '-';
-	 when 2 =>
-	    Operator := '*';
-	 when 3 =>
-	    Operator := '/';
-	 when others =>
-	    Operator := '+';
-	 end case;
-      
-	 New_Task := (First_Arg, Second_Arg, Operator);
+	 Reset (G);
 	 
-	 if Is_Verbose_Mode_ON then
-	    Put_Line ("President added new task: " & First_Arg'Image & Operator'Image & Second_Arg'Image);
-	 end if;
-	 
-	 List.Add_New_Task(New_Task);
+	 loop 
+	    First_Arg := Random (G);
+	    Second_Arg := Random (G);
       
+	    Operator_Type := (abs (First_Arg + Second_Arg)) mod 4;
+      
+	    case Operator_Type is 
+	    when 0 =>
+	       Operator := '+';
+	    when 1 =>
+	       Operator := '-';
+	    when 2 =>
+	       Operator := '*';
+	    when 3 =>
+	       Operator := '/';
+	    when others =>
+	       Operator := '+';
+	    end case;
+      
+	    New_Task := (First_Arg, Second_Arg, Operator);
+	 
+	    if Is_Verbose_Mode_ON then
+	       Put_Line ("President added new task: " & First_Arg'Image & Operator & Second_Arg'Image);
+	    end if;
+	 
+	    List.Add_New_Task (New_Task);
+	    delay Boss_Delay;
+	 end loop;
       end Boss;
       
       task body Magazine_Server is 
@@ -118,7 +126,7 @@ package body Corporation is
 	    or
 	       when Elements > 0 =>
 		  accept Get_Product (New_Product : out Product) do
-		     New_Product := Products_List (Elements);
+		     New_Product := Products_List (Elements - 1);
 		     Elements := Elements - 1;
 		  end Get_Product;
 	    or
@@ -154,12 +162,12 @@ package body Corporation is
 	    
 	    if Is_Verbose_Mode_ON then
 	       Put_Line ("Wroker has already done task: " & New_Task.First_Arg'Image 
-		& New_Task.Operator'Image & New_Task.Second_Arg'Image);
+		& New_Task.Operator & New_Task.Second_Arg'Image & " = " & Result'Image);
 	    end if;
 	   
 	    Magazine.Add_New_Product(New_Product);
 	    
-	    --delay Worker_Delay;
+	    delay Worker_Delay;
 	 end loop;
       end Worker;
       
@@ -169,10 +177,21 @@ package body Corporation is
 	 loop
 	    Magazine.Get_Product (New_Product);
 	    Put_Line ("Client has already bought product with value: " & New_Product.Product_Value'Image);
+	    
+	    delay Client_Delay;
 	 end loop;
       end Client;
       
+      New_Boss : Boss;
+      New_Worker : Worker_Access;
+      New_Client : Client_Access;
    begin
-      null;
+      for I in 0 .. Num_Of_Workers loop
+	 New_Worker := new Worker (I);
+      end loop;
+      
+      for I in 0 .. Num_Of_Clients loop
+	 New_Client := new Client (I);
+      end loop;
    end Production;
 end Corporation;
