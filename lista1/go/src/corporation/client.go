@@ -13,10 +13,10 @@ func client(clientID int, purchase chan<- buyRequest) {
 	// Infinite loop of client
 	for {
 		// Prepare new request of buying product
-		request := buyRequest{response: make(chan product)}
+		request := buyRequest{response: product{}}
 		purchase <- request
 
-		response := <-request.response
+		response := request.response
 
 		if response == (product{}) {
 			continue

@@ -25,9 +25,3 @@ type taskRequest struct {
 type buyRequest struct {
 	response chan product
 }
-
-// storeRequest is helper structure for storing product in magazine
-// type storeRequest struct {
-// 	manufacturedProduct product
-// 	response            chan bool
-// }
