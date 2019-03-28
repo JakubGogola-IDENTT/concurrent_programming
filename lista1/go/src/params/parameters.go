@@ -12,16 +12,16 @@ var IsVerboseModeOn = true
 var Bound = 2137
 
 // WorkerDelay is delay of single worker
-var WorkerDelay = 5 * time.Second
+var WorkerDelay = 2 * time.Second
 
 // ClientDelay is delay of client
-var ClientDelay = 6 * time.Second
+var ClientDelay = 8 * time.Second
 
 // NumOfWorkers is number of currently active workers
-var NumOfWorkers = 10
+var NumOfWorkers = 4
 
 // NumOfClients is number of currently active clients
-var NumOfClients = 20
+var NumOfClients = 2
 
 // GetPresidentDelay returns random delay for president
 func GetPresidentDelay() time.Duration {

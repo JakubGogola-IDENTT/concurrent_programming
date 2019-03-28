@@ -3,6 +3,7 @@ package corporation
 import (
 	"flag"
 	"fmt"
+	"os"
 	"params"
 )
 
@@ -22,6 +23,7 @@ func printCommands() {
 	fmt.Println("Usage (avaiable commands):")
 	fmt.Println("m - print list of products stored in magazine")
 	fmt.Println("t - print list of tasks to do")
+	fmt.Println("q - quit")
 }
 
 // Init starts simulation
@@ -83,6 +85,8 @@ func Init() {
 				tasksServerInfoChannel <- struct{}{}
 			case "h":
 				printCommands()
+			case "q":
+				os.Exit(1)
 			default:
 				fmt.Println("Invalid command")
 				fmt.Println("Type 'h' to see avaiable commands")
