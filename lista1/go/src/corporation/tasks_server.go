@@ -4,7 +4,7 @@ import "fmt"
 
 // tasksServer handles list of task to do.
 // taskRequest is channel where requests from workers for new tasks are sended.
-// tasks is channel where president sends new tasks.
+// tasks is channel where boss sends new tasks.
 // info is channel where user sends request for information about list of tasks to do.
 func tasksServer(taskRequests <-chan taskRequest, tasks <-chan task, info <-chan struct{}) {
 	// List of tasks to do.
@@ -23,7 +23,7 @@ func tasksServer(taskRequests <-chan taskRequest, tasks <-chan task, info <-chan
 				tasksToDo = tasksToDo[1:]
 			}
 		case newTask := <-tasks:
-			// If president send new task add it to list of tasks to do.
+			// If boss send new task add it to list of tasks to do.
 			tasksToDo = append(tasksToDo, newTask)
 		case <-info:
 			// If user sends request show list of tasks

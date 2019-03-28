@@ -35,8 +35,8 @@ func Init() {
 	fmt.Println("########################################\u001b[0m")
 	fmt.Print("\n(Press any key to stop simlation)\n\n")
 
-	//Channel for new tasks from president.
-	presidentNewTasksChannel := make(chan task)
+	//Channel for new tasks from boss.
+	bossNewTasksChannel := make(chan task)
 
 	// Channels for worker
 	workerTaskRequestsChannel := make(chan taskRequest)
@@ -50,11 +50,11 @@ func Init() {
 	magazineServerInfoChannel := make(chan struct{})
 
 	// Start servers for tasks list and stored products list.
-	go tasksServer(workerTaskRequestsChannel, presidentNewTasksChannel, tasksServerInfoChannel)
+	go tasksServer(workerTaskRequestsChannel, bossNewTasksChannel, tasksServerInfoChannel)
 	go magazineServer(workerNewProductsChannel, clientPurchaseChannel, magazineServerInfoChannel)
 
-	// Start president.
-	go president(presidentNewTasksChannel)
+	// Start boss.
+	go boss(bossNewTasksChannel)
 
 	// Start workers
 	for i := 0; i < params.NumOfWorkers; i++ {

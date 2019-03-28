@@ -9,22 +9,28 @@ import (
 var IsVerboseModeOn = true
 
 // Bound for random arguments
-var Bound = 2137
+const Bound = 2137
 
 // WorkerDelay is delay of single worker
-var WorkerDelay = 2 * time.Second
+const WorkerDelay = 2 * time.Second
 
 // ClientDelay is delay of client
-var ClientDelay = 8 * time.Second
+const ClientDelay = 8 * time.Second
 
 // NumOfWorkers is number of currently active workers
-var NumOfWorkers = 4
+const NumOfWorkers = 4
 
 // NumOfClients is number of currently active clients
-var NumOfClients = 2
+const NumOfClients = 2
 
-// GetPresidentDelay returns random delay for president
-func GetPresidentDelay() time.Duration {
+// SizeOfList is size of list with tasks
+const SizeOfList = 10
+
+// SizeOfMagazine is size of magazine with products
+const SizeOfMagazine = 5
+
+// GetBossDelay returns random delay for president
+func GetBossDelay() time.Duration {
 	delaySeed := 5
 	return time.Duration(rand.Intn(delaySeed)) * time.Second
 }
