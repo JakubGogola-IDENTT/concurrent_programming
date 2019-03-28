@@ -16,11 +16,11 @@ func worker(workerID int, taskRequests chan<- taskRequest, products chan<- produ
 		//var taskToDo task
 
 		// Prepare and send new request
-		request := taskRequest{response: task{}}
+		request := taskRequest{response: make(chan task)}
 		taskRequests <- request
 
 		// Check response
-		taskToDo := request.response
+		taskToDo := <-request.response
 		if taskToDo.operation == nil {
 			continue
 		}

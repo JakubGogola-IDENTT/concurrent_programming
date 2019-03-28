@@ -16,10 +16,10 @@ func tasksServer(taskRequests <-chan taskRequest, tasks <-chan task, info <-chan
 		case request := <-taskRequests:
 			// If list of tasks to do is empty send nil.
 			if len(tasksToDo) == 0 {
-				request.response = task{}
+				request.response <- task{}
 			} else {
 				// Otherwise send first task from list.
-				request.response = tasksToDo[0]
+				request.response <- tasksToDo[0]
 				tasksToDo = tasksToDo[1:]
 			}
 		case newTask := <-tasks:
