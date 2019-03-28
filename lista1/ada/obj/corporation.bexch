@@ -1,0 +1,22 @@
+[MAPPING FILE]
+/tmp/GNAT-TEMP-000003.TMP
+[TOOLCHAIN VERSION]
+ada
+GNAT 2018
+[MAIN BASE NAME]
+corporation
+[COMPILER PATH]
+/opt/GNOME/2018/bin/gcc
+[COMPILER LEADING SWITCHES]
+-c
+-x
+ada
+-gnatA
+[MAIN DEPENDENCY FILE]
+/home/jakub/Dokumenty/PW/lista1/ada/obj/corporation.ali
+[DEPENDENCY FILES]
+[BINDING OPTIONS]
+gnatbind_prefix=
+[PROJECT FILES]
+/home/jakub/Dokumenty/PW/lista1/ada/lista1.gpr
+20190327232221

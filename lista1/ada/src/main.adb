@@ -3,5 +3,6 @@ with Corporation; use Corporation;
 
 procedure Main is
 begin
+   Put_Line ("Let's begin!");
    Production;
 end Main;

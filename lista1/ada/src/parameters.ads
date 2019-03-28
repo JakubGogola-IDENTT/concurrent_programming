@@ -6,7 +6,7 @@ package Parameters is
    
    -- Delays
    Worker_Delay      : constant Duration := 5.0;
-   Client_Delay      : constant Duration := 2.0;
+   Client_Delay      : constant Duration := 6.0;
    Boss_Delay        : constant Duration := 1.0; -- Temporary solution - should be random
    
    

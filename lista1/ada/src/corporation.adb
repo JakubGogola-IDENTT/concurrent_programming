@@ -6,6 +6,16 @@ with Parameters; use Parameters;
 with Operations; use Operations;
 
 package body Corporation is
+   function Get_Boss_Delay return Duration is
+      G      : Ada.Numerics.Float_Random.Generator;
+      Result : Float;
+   begin
+      Ada.Numerics.Float_Random.Reset (G);
+      Result := Ada.Numerics.Float_Random.Random (G);
+      Result := 5.0 * Result + 0.5; 
+      return Duration (Result);
+   end Get_Boss_Delay;
+   
    procedure Production is
       
       -- Tasks
@@ -103,7 +113,7 @@ package body Corporation is
 	    end if;
 	 
 	    List.Add_New_Task (New_Task);
-	    delay Boss_Delay;
+	    delay Get_Boss_Delay;
 	 end loop;
       end Boss;
       
@@ -161,12 +171,11 @@ package body Corporation is
 	    New_Product := (Product_Value => Result);
 	    
 	    if Is_Verbose_Mode_ON then
-	       Put_Line ("Wroker has already done task: " & New_Task.First_Arg'Image 
+	       Put_Line ("Worker " & ID'Image & " has already done task: " & New_Task.First_Arg'Image 
 		& New_Task.Operator & New_Task.Second_Arg'Image & " = " & Result'Image);
 	    end if;
 	   
 	    Magazine.Add_New_Product(New_Product);
-	    
 	    delay Worker_Delay;
 	 end loop;
       end Worker;
@@ -176,7 +185,7 @@ package body Corporation is
       begin
 	 loop
 	    Magazine.Get_Product (New_Product);
-	    Put_Line ("Client has already bought product with value: " & New_Product.Product_Value'Image);
+	    Put_Line ("Client " & ID'Image & " has already bought product with value: " & New_Product.Product_Value'Image);
 	    
 	    delay Client_Delay;
 	 end loop;
@@ -185,12 +194,13 @@ package body Corporation is
       New_Boss : Boss;
       New_Worker : Worker_Access;
       New_Client : Client_Access;
+      
    begin
-      for I in 0 .. Num_Of_Workers loop
+      for I in 1 .. Num_Of_Workers loop
 	 New_Worker := new Worker (I);
       end loop;
       
-      for I in 0 .. Num_Of_Clients loop
+      for I in 1 .. Num_Of_Clients loop
 	 New_Client := new Client (I);
       end loop;
    end Production;
