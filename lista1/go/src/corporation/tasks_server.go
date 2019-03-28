@@ -1,6 +1,9 @@
 package corporation
 
-import "fmt"
+import (
+	"fmt"
+	"params"
+)
 
 // tasksServer handles list of task to do.
 // taskRequest is channel where requests from workers for new tasks are sended.
@@ -24,7 +27,13 @@ func tasksServer(taskRequests <-chan taskRequest, tasks <-chan task, info <-chan
 			}
 		case newTask := <-tasks:
 			// If boss send new task add it to list of tasks to do.
-			tasksToDo = append(tasksToDo, newTask)
+			if len(tasksToDo) >= params.SizeOfList {
+				if params.IsVerboseModeOn {
+					fmt.Println("List of tasks is full!")
+				}
+			} else {
+				tasksToDo = append(tasksToDo, newTask)
+			}
 		case <-info:
 			// If user sends request show list of tasks
 			if len(tasksToDo) == 0 {

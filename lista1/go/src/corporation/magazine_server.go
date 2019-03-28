@@ -1,6 +1,9 @@
 package corporation
 
-import "fmt"
+import (
+	"fmt"
+	"params"
+)
 
 // magazineServer handles storing products in magazine. Clients can buy products from magazine.
 // manufacturedProducts is channel where new products are sent.
@@ -14,7 +17,13 @@ func magazineServer(manufacturedProducts <-chan product, purchases <-chan buyReq
 	for {
 		select {
 		case newProduct := <-manufacturedProducts:
-			storedProducts = append(storedProducts, newProduct)
+			if len(storedProducts) >= params.SizeOfMagazine {
+				if params.IsVerboseModeOn {
+					fmt.Println("Magazine is full!")
+				}
+			} else {
+				storedProducts = append(storedProducts, newProduct)
+			}
 
 		case purchase := <-purchases:
 			if len(storedProducts) == 0 {
