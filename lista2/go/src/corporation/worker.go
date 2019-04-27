@@ -11,9 +11,9 @@ import (
 // workerId is id of current worker
 // tasks is channel with task to do.
 // products is channel where final product is sended.
-func worker(workerID int, taskRequests chan<- taskRequest, products chan<- product, ouputChannels machineChannels) {
+func worker(workerID int, taskRequests chan<- taskRequest, products chan<- product, ouputChannels machineChannels, info <-chan struct{}) {
 	// Worker type
-	// var workerType params.WorkerType
+	var workerType params.WorkerType
 	var workerMode func(*task, int, []chan taskForMachine) int
 
 	// Get a worker type
@@ -22,10 +22,10 @@ func worker(workerID int, taskRequests chan<- taskRequest, products chan<- produ
 	r := rand.Intn(2)
 
 	if r == 0 {
-		// workerType = params.PATIENT
+		workerType = params.PATIENT
 		workerMode = patientMode
 	} else {
-		// workerType = params.IMPATIENT
+		workerType = params.IMPATIENT
 		workerMode = impatientMode
 	}
 
@@ -34,6 +34,12 @@ func worker(workerID int, taskRequests chan<- taskRequest, products chan<- produ
 
 	// Infinite loop of worker
 	for {
+		select {
+		case <-info:
+			fmt.Printf("\u001b[32mWorker\u001b[0m %d which is %s has already done %d tasks\n", workerID, workerType, tasksDone)
+		default:
+		}
+
 		// Prepare and send new request
 		request := taskRequest{response: make(chan task)}
 		taskRequests <- request
@@ -82,7 +88,7 @@ func impatientMode(taskToDo *task, workerID int, machines []chan taskForMachine)
 			select {
 			case machineID := <-machineIDResponse:
 				if params.IsVerboseModeOn {
-					fmt.Printf("\u001b[32mWorker\u001b[0m %d made product: %d %c %d = %d using machine %d\n", workerID, taskToDo.firstArg,
+					fmt.Printf("\u001b[32mWorker\u001b[0m %d which is impatient made product: %d %c %d = %d using machine %d\n", workerID, taskToDo.firstArg,
 						taskToDo.operator, taskToDo.secondArg, taskToDo.result, machineID)
 				}
 				return taskToDo.result
@@ -111,7 +117,7 @@ func patientMode(taskToDo *task, workerID int, machines []chan taskForMachine) i
 		select {
 		case machineID := <-machineIDResponse:
 			if params.IsVerboseModeOn {
-				fmt.Printf("\u001b[32mWorker\u001b[0m %d made product: %d %c %d = %d using machine %d\n", workerID, taskToDo.firstArg,
+				fmt.Printf("\u001b[32mWorker\u001b[0m %d which is patient made product: %d %c %d = %d using machine %d\n", workerID, taskToDo.firstArg,
 					taskToDo.operator, taskToDo.secondArg, taskToDo.result, machineID)
 			}
 			return taskToDo.result

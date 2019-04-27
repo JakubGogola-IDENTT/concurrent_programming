@@ -23,6 +23,7 @@ func printCommands() {
 	fmt.Println("Usage (avaiable commands):")
 	fmt.Println("m - print list of products stored in magazine")
 	fmt.Println("t - print list of tasks to do")
+	fmt.Println("w - print workers statistics")
 	fmt.Println("q - quit")
 }
 
@@ -61,9 +62,12 @@ func Init() {
 	// Start boss.
 	go boss(bossNewTasksChannel)
 
+	workersInfoChannels := make([]chan struct{}, params.NumOfWorkers)
+
 	// Start workers
 	for i := 0; i < params.NumOfWorkers; i++ {
-		go worker(i, workerTaskRequestsChannel, workerNewProductsChannel, channels)
+		workersInfoChannels[i] = make(chan struct{})
+		go worker(i, workerTaskRequestsChannel, workerNewProductsChannel, channels, workersInfoChannels[i])
 	}
 
 	// Start clients
@@ -88,6 +92,10 @@ func Init() {
 				magazineServerInfoChannel <- struct{}{}
 			case "t":
 				tasksServerInfoChannel <- struct{}{}
+			case "w":
+				for _, infoChannel := range workersInfoChannels {
+					infoChannel <- struct{}{}
+				}
 			case "h":
 				printCommands()
 			case "q":

@@ -15,7 +15,7 @@ const Bound = 2137
 const WorkerDelay = 5 * time.Second
 
 // ImpatientWorkerDelay is delay of impatient worker
-const ImpatientWorkerDelay = 3 * time.Second
+const ImpatientWorkerDelay = 4 * time.Second
 
 // ClientDelay is delay of client
 const ClientDelay = 15 * time.Second
@@ -51,10 +51,10 @@ func GetBossDelay() time.Duration {
 }
 
 // WorkerType is enum type for worker
-type WorkerType int
+type WorkerType string
 
 // Enums for worker
 const (
-	PATIENT   WorkerType = iota
-	IMPATIENT WorkerType = iota
+	PATIENT   WorkerType = "patient"
+	IMPATIENT WorkerType = "impatient"
 )
