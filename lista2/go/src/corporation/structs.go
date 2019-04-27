@@ -10,6 +10,14 @@ type task struct {
 	operator  byte
 }
 
+// taskForMachine is wrapper for worker's task with channel for machine response
+// taskFromWorker is pointer for task from worker
+// machineResponse is chanel for machine response - if machine is avaiable it is struct{}, otherwise - nil
+type taskForMachine struct {
+	taskFromWorker  *task
+	machineResponse chan struct{}
+}
+
 // product is struct which represents product.
 // value is value which was computed by worker.
 type product struct {
