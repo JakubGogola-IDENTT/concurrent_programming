@@ -8,14 +8,15 @@ type task struct {
 	secondArg int
 	operation func(int, int) int
 	operator  byte
+	result    int
 }
 
 // taskForMachine is wrapper for worker's task with channel for machine response
 // taskFromWorker is pointer for task from worker
 // machineResponse is chanel for machine response - if machine is avaiable it is struct{}, otherwise - nil
 type taskForMachine struct {
-	taskFromWorker  *task
-	machineResponse chan struct{}
+	taskFromWorker *task
+	machineID      chan int
 }
 
 // product is struct which represents product.
@@ -32,4 +33,12 @@ type taskRequest struct {
 // clientRequest is helper structure for buiyng product from magazine
 type buyRequest struct {
 	response chan product
+}
+
+// machineChannels is struct with arrays containing I/O channels for multiplying and adding machines
+// addingMachineChannels is array with channels for adding machines
+// multiplyingMchineChannels is array with channels for multilpying machines
+type machineChannels struct {
+	addingMachineChannels      []chan taskForMachine
+	multiplyingMachineChannels []chan taskForMachine
 }

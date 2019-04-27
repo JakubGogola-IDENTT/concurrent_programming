@@ -35,6 +35,11 @@ func Init() {
 	fmt.Println("########################################\u001b[0m")
 	fmt.Print("\n(Press any key to stop simlation)\n\n")
 
+	channels := machineChannels{
+		addingMachineChannels:      createAddingMachines(),
+		multiplyingMachineChannels: createMultiplyingMachines(),
+	}
+
 	//Channel for new tasks from boss.
 	bossNewTasksChannel := make(chan task)
 
@@ -58,7 +63,7 @@ func Init() {
 
 	// Start workers
 	for i := 0; i < params.NumOfWorkers; i++ {
-		go worker(i, workerTaskRequestsChannel, workerNewProductsChannel)
+		go worker(i, workerTaskRequestsChannel, workerNewProductsChannel, channels)
 	}
 
 	// Start clients

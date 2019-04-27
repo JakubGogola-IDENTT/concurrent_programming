@@ -14,8 +14,23 @@ const Bound = 2137
 // WorkerDelay is delay of single worker
 const WorkerDelay = 5 * time.Second
 
+// ImpatientWorkerDelay is delay of impatient worker
+const ImpatientWorkerDelay = 3 * time.Second
+
 // ClientDelay is delay of client
 const ClientDelay = 15 * time.Second
+
+// NumOfAddingMachines is number of adding machines
+const NumOfAddingMachines = 3
+
+// AddingMachineDelay is delay of adding machine
+const AddingMachineDelay = 1 * time.Second
+
+// NumOfMultiplyingMachines is number of adding machines
+const NumOfMultiplyingMachines = 3
+
+// MultiplyingMachineDelay is delay of multiplying machine
+const MultiplyingMachineDelay = 2 * time.Second
 
 // NumOfWorkers is number of currently active workers
 const NumOfWorkers = 3
@@ -34,3 +49,12 @@ func GetBossDelay() time.Duration {
 	delaySeed := 4
 	return time.Duration(rand.Intn(delaySeed)) * time.Second
 }
+
+// WorkerType is enum type for worker
+type WorkerType int
+
+// Enums for worker
+const (
+	PATIENT   WorkerType = iota
+	IMPATIENT WorkerType = iota
+)

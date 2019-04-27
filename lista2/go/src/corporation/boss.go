@@ -14,10 +14,10 @@ func boss(tasks chan<- task) {
 	rand.Seed(time.Now().UnixNano())
 
 	// Map of functions which define operations.
-	operationFuncs := [4]func(int, int) int{add, sub, mult, div}
+	operationFuncs := [2]func(int, int) int{add, mult}
 
 	// Map of operators matching functions which define operations.
-	operators := [4]byte{'+', '-', '*', '/'}
+	operators := [2]byte{'+', '*'}
 
 	// Infinite loop of boss
 	for {

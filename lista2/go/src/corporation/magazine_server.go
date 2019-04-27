@@ -24,7 +24,6 @@ func magazineServer(manufacturedProducts <-chan product, purchases <-chan buyReq
 			} else {
 				storedProducts = append(storedProducts, newProduct)
 			}
-
 		case purchase := <-purchases:
 			if len(storedProducts) == 0 {
 				purchase.response <- product{}
