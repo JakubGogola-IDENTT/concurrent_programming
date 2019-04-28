@@ -37,11 +37,11 @@ func multiplyingMachine(machineID int, taskStream <-chan taskForMachine) {
 
 		time.Sleep(params.MultiplyingMachineDelay)
 
-		// Send machine id as response when task is done
-		task.machineID <- machineID
-
 		val := workerTask.operation(workerTask.firstArg, workerTask.secondArg)
 		workerTask.result = val
+
+		// Send machine id as response when task is done
+		task.machineID <- machineID
 	}
 }
 
