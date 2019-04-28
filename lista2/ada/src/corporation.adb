@@ -77,48 +77,6 @@ package body Corporation is
       
       -- Array of clients
       Clients : array (0 .. Num_Of_Clients) of access Client;
-      
-      -- Machines
---        protected type Adding_Machine(Machine_ID: Integer) is 
---           entry Task_Stream (Task_To_Do : in out Task_For_Machine);
---        private
---           Task_To_Do : Task_For_Machine;
---        end Adding_Machine;
---       
---        protected type Multiplying_Machine(Machine_ID : Integer) is 
---           entry Task_Stream (Task_To_Do : in out Task_For_Machine);
---        private
---           Tasks_To_Do : Task_For_Machine;
---        end Multiplying_Machine;
---        
---        protected body Adding_Machine is 
---           entry Task_Stream (Task_To_Do : in out Task_For_Machine) 
---             when True is
---           begin
---              delay Adding_Machine_Delay;
---              Task_To_Do.Task_From_Worker.Result := Task_To_Do.Task_From_Worker.First_Arg + Task_To_Do.Task_From_Worker.Second_Arg;
---              select 
---                 Workers(Task_To_Do.Worker_ID).Notifications_Entry(True);
---              or
---                 delay 0.1;
---              end select;
---           end Task_Stream;    
---        end Adding_Machine;
---        
---        protected body Multiplying_Machine is 
---           entry Task_Stream (Task_To_Do : in out Task_For_Machine) 
---             when True is
---           begin
---              delay Multiplying_Machine_Delay;
---              Task_To_Do.Task_From_Worker.Result := Task_To_Do.Task_From_Worker.First_Arg + Task_To_Do.Task_From_Worker.Second_Arg;
---              
---              select 
---                 Workers(Task_To_Do.Worker_ID).Notifications_Entry(True);
---              or
---                 delay 0.1;
---              end select;
---           end Task_Stream;   
---        end Multiplying_Machine;
 
       -- Machines
       task type Adding_Machine(Machine_ID: Integer) is 
@@ -174,36 +132,6 @@ package body Corporation is
             end select;
          end loop;
       end Multiplying_Machine;
-        
---        protected body Adding_Machine is 
---           entry Task_Stream (Task_To_Do : in out Task_For_Machine) 
---             when True is
---           begin
---              delay Adding_Machine_Delay;
---              Task_To_Do.Task_From_Worker.Result := Task_To_Do.Task_From_Worker.First_Arg + Task_To_Do.Task_From_Worker.Second_Arg;
---              select 
---                 Workers(Task_To_Do.Worker_ID).Notifications_Entry(True);
---              or
---                 delay 0.1;
---              end select;
---           end Task_Stream;    
---        end Adding_Machine;
---        
---        protected body Multiplying_Machine is 
---           entry Task_Stream (Task_To_Do : in out Task_For_Machine) 
---             when True is
---           begin
---              delay Multiplying_Machine_Delay;
---              Task_To_Do.Task_From_Worker.Result := Task_To_Do.Task_From_Worker.First_Arg + Task_To_Do.Task_From_Worker.Second_Arg;
---              
---              select 
---                 Workers(Task_To_Do.Worker_ID).Notifications_Entry(True);
---              or
---                 delay 0.1;
---              end select;
---           end Task_Stream;   
---        end Multiplying_Machine;
-         
       
       -- Machine arrays
       Adding_Machines_Array : array (0 .. Num_Of_Adding_Machines) of access Adding_Machine;
