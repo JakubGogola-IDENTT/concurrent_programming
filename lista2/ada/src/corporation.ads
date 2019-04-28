@@ -6,6 +6,7 @@ package Corporation is
       Second_Arg : Integer;
       Operator   : Character;
       Result : Integer;
+      Machine_ID : Integer;
    end record;
    
    type Product is record
@@ -13,7 +14,7 @@ package Corporation is
    end record;
    
    type Task_For_Machine is record
-      Task_From_Worker : Corpo_Task;
+      Task_From_Worker : access Corpo_Task;
       Worker_ID : Integer;
    end record;
       
