@@ -48,6 +48,7 @@ package body Corporation is
       task type Listener;
       task type Worker (ID : Integer) is 
          entry Notifications_Entry (Notification : Boolean);
+         entry Worker_Info_Request;
       end Worker;   
       type Worker_Access is access Worker;
       task type Client (ID : Integer);
@@ -74,21 +75,14 @@ package body Corporation is
       
       -- Array of workers
       Workers : array (0 .. Num_Of_Workers) of access Worker;
-      
-      -- Array of clients
-      Clients : array (0 .. Num_Of_Clients) of access Client;
 
       -- Machines
       task type Adding_Machine(Machine_ID: Integer) is 
          entry Task_Stream (Task_To_Do : in Task_For_Machine);
---        private
---           Task_To_Do : Task_For_Machine;
       end Adding_Machine;
      
       task type Multiplying_Machine(Machine_ID : Integer) is 
          entry Task_Stream (Task_To_Do : in Task_For_Machine);
---        private
---           Tasks_To_Do : Task_For_Machine;
       end Multiplying_Machine;
       
       task body Adding_Machine is 
@@ -102,8 +96,6 @@ package body Corporation is
             delay Adding_Machine_Delay;
             T.Task_From_Worker.Result := T.Task_From_Worker.First_Arg + T.Task_From_Worker.Second_Arg;
             T.Task_From_Worker.Machine_ID := Machine_ID;
-            
---              Workers(T.Worker_ID).Notifications_Entry(True);
             select
                Workers(T.Worker_ID).Notifications_Entry(True);
             or
@@ -124,7 +116,6 @@ package body Corporation is
             T.Task_From_Worker.Result := T.Task_From_Worker.First_Arg * T.Task_From_Worker.Second_Arg;
             T.Task_From_Worker.Machine_ID := Machine_ID;
             
---              Workers(T.Worker_ID).Notifications_Entry(True);
             select
                Workers(T.Worker_ID).Notifications_Entry(True);
             or 
@@ -253,7 +244,7 @@ package body Corporation is
       task body Worker is
          subtype Random_Range is Integer range 0 .. 1;
          Index: Integer;
-	 Result : Integer;
+         Result : Integer;
          New_Task : Corpo_Task;
          New_Task_Pointer : access Corpo_Task;
          New_Product : Product;
@@ -261,6 +252,7 @@ package body Corporation is
          Worker_Type : String(1..9);
          Random_Type : Integer;
          Result_Found : Boolean;
+         Tasks_Done : Integer := 0;
       begin
          Random_Type := Random_Generator(0, 1);
          
@@ -270,8 +262,16 @@ package body Corporation is
             Worker_Type := "impatient";
          end if;
          
-	 loop
-	    List.Get_Task (New_Task);
+         loop
+            select 
+               accept Worker_Info_Request  do
+                  Put_Line ("Worker " & ID'Image & "which is " & Worker_Type & "has already done " & Tasks_Done'Image);
+               end Worker_Info_Request;
+            else
+               null;
+            end select;
+            
+            List.Get_Task (New_Task);
             if Worker_Type = "impatient" then
                case New_Task.Operator is
                   when '+' =>
@@ -287,6 +287,7 @@ package body Corporation is
                               accept Notifications_Entry (Notification : in Boolean) do
                                  Result := New_Task_Pointer.Result;
                                  Result_Found := True;
+                                 Tasks_Done := Tasks_Done + 1;
                               end Notifications_Entry;
                            or
                               delay Impatient_Worker_Delay;
@@ -307,6 +308,7 @@ package body Corporation is
                               accept Notifications_Entry (Notification : in Boolean) do
                                  Result := New_Task_Pointer.Result;
                                  Result_Found := True;
+                                 Tasks_Done := Tasks_Done + 1;
                               end Notifications_Entry;
                            or
                               delay Impatient_Worker_Delay;
@@ -332,6 +334,7 @@ package body Corporation is
                            accept Notifications_Entry (Notification : in Boolean) do
                               Result := New_Task_Pointer.Result;
                               Result_Found := True;
+                              Tasks_Done := Tasks_Done + 1;
                            end Notifications_Entry;
                         end select;
                      end loop;
@@ -349,6 +352,7 @@ package body Corporation is
                            accept Notifications_Entry (Notification : in Boolean) do
                               Result := New_Task_Pointer.Result;
                               Result_Found := True;
+                              Tasks_Done := Tasks_Done + 1;
                            end Notifications_Entry;
                         end select;
                      end loop;
@@ -361,7 +365,7 @@ package body Corporation is
 	    
 	    if Is_Verbose_Mode_ON then
 	       Put_Line ("Worker " & ID'Image & " which is " & Worker_Type & " has already done task : " & New_Task.First_Arg'Image 
-		& New_Task.Operator & New_Task.Second_Arg'Image & " = " & Result'Image & " using machine " & New_Task.Machine_ID'Image);
+		& New_Task.Operator & New_Task.Second_Arg'Image & " = " & Result'Image & " using machine " & New_Task_Pointer.Machine_ID'Image);
 	    end if;
 	   
 	    Magazine.Add_New_Product(New_Product);
@@ -389,7 +393,8 @@ package body Corporation is
       begin 
 	 Put_Line ("Usage (avaiable commands): ");
 	 Put_Line ("m - print list of products stored in magazine");
-	 Put_Line ("t - print list of tasks to do");
+         Put_Line ("t - print list of tasks to do");
+         Put_Line ("W - print info about workers");
 	 
 	 loop
 	    Get (Command);
@@ -398,7 +403,11 @@ package body Corporation is
 	    when 't' =>
 	       List.Print_Tasks;
 	    when 'm' =>
-	       Magazine.Print_Products;
+               Magazine.Print_Products;
+            when 'w' =>
+               for I in Workers'Range loop
+                  Workers(I).Worker_Info_Request;
+               end loop;
 	    when others =>
 	       Put_Line ("Unkown command");
 	    end case;
@@ -406,7 +415,6 @@ package body Corporation is
       end Listener;
      
       New_Boss : Boss;
-      -- New_Worker : Worker_Access;
       New_Client : Client_Access;
       New_Listener : Listener_Access;
       
@@ -428,7 +436,6 @@ package body Corporation is
       end loop;
       
       for I in 0 .. Num_Of_Clients loop
-         -- Clients(I) := new Client (I);
          New_Client := new Client (I);
       end loop;
    end Production;

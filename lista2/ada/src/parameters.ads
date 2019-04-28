@@ -19,6 +19,6 @@ package Parameters is
    Num_Of_Multiplying_Machines : constant Integer := 3;
    
    -- Verbose mode flag
-   Is_Verbose_Mode_ON : Boolean := True;
+   Is_Verbose_Mode_ON : Boolean := False;
 
 end Parameters;
