@@ -15,7 +15,7 @@ const Bound = 2137
 const WorkerDelay = 5 * time.Second
 
 // ImpatientWorkerDelay is delay of impatient worker
-const ImpatientWorkerDelay = 4 * time.Second
+const ImpatientWorkerDelay = 2 * time.Second
 
 // ClientDelay is delay of client
 const ClientDelay = 15 * time.Second
@@ -24,25 +24,25 @@ const ClientDelay = 15 * time.Second
 const NumOfAddingMachines = 3
 
 // AddingMachineDelay is delay of adding machine
-const AddingMachineDelay = 1 * time.Second
+const AddingMachineDelay = 4 * time.Second
 
 // NumOfMultiplyingMachines is number of adding machines
 const NumOfMultiplyingMachines = 3
 
 // MultiplyingMachineDelay is delay of multiplying machine
-const MultiplyingMachineDelay = 2 * time.Second
+const MultiplyingMachineDelay = 5 * time.Second
 
 // NumOfWorkers is number of currently active workers
-const NumOfWorkers = 3
+const NumOfWorkers = 9
 
 // NumOfClients is number of currently active clients
-const NumOfClients = 5
+const NumOfClients = 12
 
 // SizeOfList is size of list with tasks
-const SizeOfList = 8
+const SizeOfList = 10
 
 // SizeOfMagazine is size of magazine with products
-const SizeOfMagazine = 10
+const SizeOfMagazine = 15
 
 // GetBossDelay returns random delay for president
 func GetBossDelay() time.Duration {

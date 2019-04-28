@@ -76,29 +76,30 @@ func worker(workerID int, taskRequests chan<- taskRequest, products chan<- produ
 // workerID is id of worker
 // machines is array of machine's input channels
 func impatientMode(taskToDo *task, workerID int, machines []chan taskForMachine) int {
-	// Loop for all available machines
-	for _, machine := range machines {
+	// Loop until task is not done
+	for {
+		// Loop for all available machines
+		for _, machine := range machines {
 
-		// Channel for machin response
-		machineIDResponse := make(chan int)
-		machine <- taskForMachine{taskToDo, machineIDResponse}
+			// Channel for machin response
+			machineIDResponse := make(chan int)
+			machine <- taskForMachine{taskToDo, machineIDResponse}
 
-		for {
-			select {
-			case machineID := <-machineIDResponse:
-				if params.IsVerboseModeOn {
-					fmt.Printf("\u001b[32mWorker\u001b[0m %d which is impatient made product: %d %c %d = %d using machine %d\n", workerID, taskToDo.firstArg,
-						taskToDo.operator, taskToDo.secondArg, taskToDo.result, machineID)
+			for {
+				select {
+				case machineID := <-machineIDResponse:
+					if params.IsVerboseModeOn {
+						fmt.Printf("\u001b[32mWorker\u001b[0m %d which is impatient made product: %d %c %d = %d using machine %d\n", workerID, taskToDo.firstArg,
+							taskToDo.operator, taskToDo.secondArg, taskToDo.result, machineID)
+					}
+					return taskToDo.result
+				case <-time.After(params.ImpatientWorkerDelay):
+					// After delay time go to the next machine
+					break
 				}
-				return taskToDo.result
-			case <-time.After(params.ImpatientWorkerDelay):
-				// After delay time go to the next machine
-				break
 			}
 		}
 	}
-
-	return -1
 }
 
 // patientMode simulates patient worker which waits for result
