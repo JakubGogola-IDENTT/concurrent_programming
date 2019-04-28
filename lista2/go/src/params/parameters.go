@@ -33,10 +33,10 @@ const NumOfMultiplyingMachines = 3
 const MultiplyingMachineDelay = 5 * time.Second
 
 // NumOfWorkers is number of currently active workers
-const NumOfWorkers = 9
+const NumOfWorkers = 6
 
 // NumOfClients is number of currently active clients
-const NumOfClients = 12
+const NumOfClients = 8
 
 // SizeOfList is size of list with tasks
 const SizeOfList = 10
