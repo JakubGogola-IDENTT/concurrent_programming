@@ -87,10 +87,10 @@ func impatientMode(taskToDo *task, workerID int, machines []chan taskForMachine)
 
 			for {
 				select {
-				case machineID := <-machineIDResponse:
+				case <-machineIDResponse:
 					if params.IsVerboseModeOn {
-						fmt.Printf("\u001b[32mWorker\u001b[0m %d which is impatient made product: %d %c %d = %d using machine %d\n", workerID, taskToDo.firstArg,
-							taskToDo.operator, taskToDo.secondArg, taskToDo.result, machineID)
+						fmt.Printf("\u001b[32mWorker\u001b[0m %d which is impatient made product: %d %c %d = %d\n", workerID, taskToDo.firstArg,
+							taskToDo.operator, taskToDo.secondArg, taskToDo.result)
 					}
 					return taskToDo.result
 				case <-time.After(params.ImpatientWorkerDelay):
@@ -115,10 +115,10 @@ func patientMode(taskToDo *task, workerID int, machines []chan taskForMachine) i
 
 	for {
 		select {
-		case machineID := <-machineIDResponse:
+		case <-machineIDResponse:
 			if params.IsVerboseModeOn {
-				fmt.Printf("\u001b[32mWorker\u001b[0m %d which is patient made product: %d %c %d = %d using machine %d\n", workerID, taskToDo.firstArg,
-					taskToDo.operator, taskToDo.secondArg, taskToDo.result, machineID)
+				fmt.Printf("\u001b[32mWorker\u001b[0m %d which is patient made product: %d %c %d = %d\n", workerID, taskToDo.firstArg,
+					taskToDo.operator, taskToDo.secondArg, taskToDo.result)
 			}
 			return taskToDo.result
 		}

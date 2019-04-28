@@ -28,7 +28,7 @@ func boss(tasks chan<- task) {
 
 		// Structure of new task
 		newTask := task{firstArg: firstArg, secondArg: secondArg,
-			operation: operationFuncs[operation], operator: operators[operation]}
+			operation: operationFuncs[operation], operator: operators[operation], result: -1}
 
 		// Sending new task to channel
 		tasks <- newTask
