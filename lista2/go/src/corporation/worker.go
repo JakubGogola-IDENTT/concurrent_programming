@@ -66,7 +66,6 @@ func worker(workerID int, taskRequests chan<- taskRequest, products chan<- produ
 
 		// Increment of done tasks
 		tasksDone++
-
 		// Sleep
 		time.Sleep(params.WorkerDelay)
 	}
