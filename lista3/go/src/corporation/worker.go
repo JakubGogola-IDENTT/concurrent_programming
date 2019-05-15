@@ -14,7 +14,7 @@ import (
 func worker(workerID int, taskRequests chan<- taskRequest, products chan<- product, ouputChannels machineChannels, info <-chan struct{}) {
 	// Worker type
 	var workerType params.WorkerType
-	var workerMode func(*task, int, []chan taskForMachine) int
+	var workerMode func(*task, int, []chan taskForMachine, []chan acceptRequest) int
 
 	// Get a worker type
 	// Could be patient (waits until machine finish task) or impatien (changes machine when waits to long)
@@ -53,9 +53,9 @@ func worker(workerID int, taskRequests chan<- taskRequest, products chan<- produ
 		var val int
 		switch taskToDo.operator {
 		case '+':
-			val = workerMode(&taskToDo, workerID, ouputChannels.addingMachineChannels)
+			val = workerMode(&taskToDo, workerID, ouputChannels.addMachineChannels, ouputChannels.addAcceptChannels)
 		case '*':
-			val = workerMode(&taskToDo, workerID, ouputChannels.multiplyingMachineChannels)
+			val = workerMode(&taskToDo, workerID, ouputChannels.multiplyMachineChannels, ouputChannels.multiplyAcceptChannels)
 		}
 
 		// Make new product
@@ -75,28 +75,29 @@ func worker(workerID int, taskRequests chan<- taskRequest, products chan<- produ
 // taskToDo is task from worker
 // workerID is id of worker
 // machines is array of machine's input channels
-func impatientMode(taskToDo *task, workerID int, machines []chan taskForMachine) int {
+func impatientMode(taskToDo *task, workerID int, machines []chan taskForMachine, accept []chan acceptRequest) int {
 	// Loop until task is not done
 	for {
-		// Loop for all available machines
-		for _, machine := range machines {
+		// Loop for all avaiable machines
+		for i, machine := range machines {
+			// Channel for chceck if machine is available
+			request := acceptRequest{make(chan struct{}, 1), make(chan struct{})}
+			accept[i] <- request
+			select {
+			case <-request.response:
+				machineIDResponse := make(chan int)
+				machine <- taskForMachine{taskToDo, machineIDResponse}
+				id := <-machineIDResponse
 
-			// Channel for machin response
-			machineIDResponse := make(chan int)
-			machine <- taskForMachine{taskToDo, machineIDResponse}
-
-			for {
-				select {
-				case <-machineIDResponse:
-					if params.IsVerboseModeOn {
-						fmt.Printf("\u001b[32mWorker\u001b[0m %d which is impatient made product: %d %c %d = %d\n", workerID, taskToDo.firstArg,
-							taskToDo.operator, taskToDo.secondArg, taskToDo.result)
-					}
-					return taskToDo.result
-				case <-time.After(params.ImpatientWorkerDelay):
-					// After delay time go to the next machine
-					break
+				if params.IsVerboseModeOn {
+					fmt.Printf("\u001b[32mWorker\u001b[0m %d which is impatient made product: %d %c %d = %d using machine %d\n", workerID, taskToDo.firstArg,
+						taskToDo.operator, taskToDo.secondArg, taskToDo.result, id)
 				}
+
+				return taskToDo.result
+			case <-time.After(params.ImpatientWorkerDelay):
+				close(request.isAlive)
+				break
 			}
 		}
 	}
@@ -106,21 +107,20 @@ func impatientMode(taskToDo *task, workerID int, machines []chan taskForMachine)
 // taskToDo is task from worker
 // workerID is id of worker
 // machines is array of machine's input channels
-func patientMode(taskToDo *task, workerID int, machines []chan taskForMachine) int {
+func patientMode(taskToDo *task, workerID int, machines []chan taskForMachine, accept []chan acceptRequest) int {
+	// TODO: check if channel should be buffered
 	// Get random machine to do task
 	r := rand.Intn(len(machines))
-	// Channel for machin response
+	request := acceptRequest{make(chan struct{}), make(chan struct{})}
+	accept[r] <- request
+	// Wait for accept
+	<-request.response
 	machineIDResponse := make(chan int)
 	machines[r] <- taskForMachine{taskToDo, machineIDResponse}
-
-	for {
-		select {
-		case <-machineIDResponse:
-			if params.IsVerboseModeOn {
-				fmt.Printf("\u001b[32mWorker\u001b[0m %d which is patient made product: %d %c %d = %d\n", workerID, taskToDo.firstArg,
-					taskToDo.operator, taskToDo.secondArg, taskToDo.result)
-			}
-			return taskToDo.result
-		}
+	id := <-machineIDResponse
+	if params.IsVerboseModeOn {
+		fmt.Printf("\u001b[32mWorker\u001b[0m %d which is patient made product: %d %c %d = %d using machine %d\n", workerID, taskToDo.firstArg,
+			taskToDo.operator, taskToDo.secondArg, taskToDo.result, id)
 	}
+	return taskToDo.result
 }

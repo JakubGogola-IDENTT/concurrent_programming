@@ -32,6 +32,9 @@ const NumOfMultiplyingMachines = 3
 // MultiplyingMachineDelay is delay of multiplying machine
 const MultiplyingMachineDelay = 5 * time.Second
 
+// MachineWaitingTime is how long machine waits for task from worker
+const MachineWaitingTime = 5 * time.Second
+
 // NumOfWorkers is number of currently active workers
 const NumOfWorkers = 6
 
@@ -43,6 +46,9 @@ const SizeOfList = 10
 
 // SizeOfMagazine is size of magazine with products
 const SizeOfMagazine = 15
+
+// BreakdownProbability is probability of breakdown
+const BreakdownProbability = 0.3
 
 // GetBossDelay returns random delay for president
 func GetBossDelay() time.Duration {

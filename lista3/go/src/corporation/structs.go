@@ -35,10 +35,20 @@ type buyRequest struct {
 	response chan product
 }
 
+// acceptReqest is helper structure for checking if machine is busy
+type acceptRequest struct {
+	response chan struct{}
+	isAlive  chan struct{}
+}
+
 // machineChannels is struct with arrays containing I/O channels for multiplying and adding machines
-// addingMachineChannels is array with channels for adding machines
-// multiplyingMchineChannels is array with channels for multilpying machines
+// addMachineChannels is array with channels for adding machines
+// multiplyMchineChannels is array with channels for multilpying machines
 type machineChannels struct {
-	addingMachineChannels      []chan taskForMachine
-	multiplyingMachineChannels []chan taskForMachine
+	addMachineChannels      []chan taskForMachine
+	addAcceptChannels       []chan acceptRequest
+	addRepairChannels       []chan struct{}
+	multiplyMachineChannels []chan taskForMachine
+	multiplyAcceptChannels  []chan acceptRequest
+	multiplyRepairChannels  []chan struct{}
 }

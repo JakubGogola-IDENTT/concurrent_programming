@@ -36,10 +36,14 @@ func Init() {
 	fmt.Println("########################################\u001b[0m")
 	fmt.Print("\n(Press any key to stop simlation)\n\n")
 
-	channels := machineChannels{
-		addingMachineChannels:      createAddingMachines(),
-		multiplyingMachineChannels: createMultiplyingMachines(),
-	}
+	// channels := machineChannels{
+	// 	addingMachineChannels:      createAddingMachines(),
+	// 	multiplyingMachineChannels: createMultiplyingMachines(),
+	// }
+
+	channels := machineChannels{}
+	channels.addMachineChannels, channels.addAcceptChannels, channels.addRepairChannels = createAddingMachines()
+	channels.multiplyMachineChannels, channels.multiplyAcceptChannels, channels.multiplyRepairChannels = createMultiplyingMachines()
 
 	//Channel for new tasks from boss.
 	bossNewTasksChannel := make(chan task)
