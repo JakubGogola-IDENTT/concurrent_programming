@@ -1,0 +1,45 @@
+package corporation
+
+import (
+	"fmt"
+	"math/rand"
+	"params"
+	"time"
+)
+
+// boss is functions which generates new task for workers.a
+// tasks is channel where tasks are sended.
+func boss(tasks chan<- task) {
+	// Setting random seed using system clock
+	rand.Seed(time.Now().UnixNano())
+
+	// Map of functions which define operations.
+	operationFuncs := [2]func(int, int) int{add, mult}
+
+	// Map of operators matching functions which define operations.
+	operators := [2]byte{'+', '*'}
+
+	// Infinite loop of boss
+	for {
+		// Generating parameters
+		firstArg := rand.Intn(params.Bound)
+		secondArg := rand.Intn(params.Bound)
+		operation := rand.Intn(len(operationFuncs))
+
+		// Structure of new task
+		newTask := task{firstArg: firstArg, secondArg: secondArg,
+			operation: operationFuncs[operation], operator: operators[operation], result: -1}
+
+		// Sending new task to channel
+		tasks <- newTask
+
+		// Show info about new task is verbose mode is
+		if params.IsVerboseModeOn {
+			fmt.Printf("\u001b[31mBoss\u001b[0m added new task %d %c %d\n", firstArg, operators[operation],
+				secondArg)
+		}
+
+		// Random delay of president
+		time.Sleep(params.GetBossDelay())
+	}
+}
