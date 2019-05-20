@@ -32,6 +32,15 @@ package body Corporation is
          Random_Value := Random(G);
          return Random_Value;
       end Random_Generator;
+      
+      function Float_Random_Generator return Float is
+         G : Ada.Numerics.Float_Random.Generator;
+         X : Ada.Numerics.Float_Random.Uniformly_Distributed;
+      begin
+         Ada.Numerics.Float_Random.Reset (G);
+         X := Ada.Numerics.Float_Random.Random (G);
+         return X;
+      end Float_Random_Generator;
            
       package Tasks_To_Do_Vectors is new Ada.Containers.Vectors 
         (Index_Type => Natural,
@@ -43,6 +52,11 @@ package body Corporation is
          Element_Type => Product);
       use Products_Vectors;
       
+      package Reports_Vector is new Ada.Containers.Vectors
+        (Index_Type  => Natural,
+         Element_Type => Breakdown_Report);
+      use Reports_Vector;
+      
       -- Tasks
       task type Boss;
       task type Listener;
@@ -50,7 +64,10 @@ package body Corporation is
          entry Notifications_Entry (Notification : Boolean);
          entry Worker_Info_Request;
       end Worker;   
+      task type Repairer(ID : Integer);
+      
       type Worker_Access is access Worker;
+      type Repairer_Access is access Repairer;
       task type Client (ID : Integer);
       type Client_Access is access Client;
       type Listener_Access is access Listener;
@@ -73,58 +90,107 @@ package body Corporation is
 	 Products_List : Products_Vectors.Vector;
       end Magazine_Server;
       
+      protected type Repair_Service is
+         entry Report_Breakdown(Report : in Breakdown_Report);
+         entry Get_Repair_Task(Repair : out Repair_Task);
+         entry Confirm_Repair(Confirmation : in Repair_Confirmation);
+         function Contains_Report(V : Reports_Vector.Vector; Report : Breakdown_Report) return Boolean;
+         function Find_Position(V : Reports_Vector.Vector; Confirmation : Repair_Confirmation) return Natural;
+      private
+         Machines_To_Repair : Reports_Vector.Vector;
+         Machines_In_Repair : Reports_Vector.Vector;
+         Position : Natural;
+      end Repair_Service;
+      
       -- Array of workers
       Workers : array (0 .. Num_Of_Workers) of access Worker;
-
+      
       -- Machines
       task type Adding_Machine(Machine_ID: Integer) is 
          entry Task_Stream (Task_To_Do : in Task_For_Machine);
+         entry Repair;
       end Adding_Machine;
      
       task type Multiplying_Machine(Machine_ID : Integer) is 
          entry Task_Stream (Task_To_Do : in Task_For_Machine);
+         entry Repair;
       end Multiplying_Machine;
       
       task body Adding_Machine is 
          T : Task_For_Machine;
+         Is_Broken : Boolean := False;
+         R : Float;
       begin
          loop
             select
                accept Task_Stream (Task_To_Do : in Task_For_Machine) do
                   T := Task_To_Do;
                end Task_Stream;
-            end select;
-            
-            delay Adding_Machine_Delay;
-            T.Task_From_Worker.Result := T.Task_From_Worker.First_Arg + T.Task_From_Worker.Second_Arg;
-            T.Task_From_Worker.Machine_ID := Machine_ID;
-            select
-               Workers(T.Worker_ID).Notifications_Entry(True);
+               delay Adding_Machine_Delay;
+               if Is_Broken then
+                  T.Task_From_Worker.Result := -1;
+               else 
+                  T.Task_From_Worker.Result := T.Task_From_Worker.First_Arg + T.Task_From_Worker.Second_Arg;
+               end if;
+               
+               T.Task_From_Worker.Machine_ID := Machine_ID;
+               select
+                  Workers(T.Worker_ID).Notifications_Entry(True);
+               or
+                  delay 0.1;
+               end select;
+               
+               R := Float_Random_Generator;
+               
+               if R <= Breakdown_Probabilty then
+                  Is_Broken := True;
+               end if;
+               
             or
-               delay 0.1;
+               accept Repair  do
+                  Is_Broken := False;
+               end Repair; 
             end select;
          end loop;
       end Adding_Machine;
       
       task body Multiplying_Machine is
          T: Task_For_Machine;
+         Is_Broken : Boolean := False;
+         R : Float;
       begin
          loop
             select
                accept Task_Stream (Task_To_Do : in Task_For_Machine) do
                   T := Task_To_Do;
                end Task_Stream;
+               delay Multiplying_Machine_Delay;
+               
+               if Is_Broken then
+                  T.Task_From_Worker.Result := -1;
+               else
+                  T.Task_From_Worker.Result := T.Task_From_Worker.First_Arg * T.Task_From_Worker.Second_Arg;
+               end if;
+               
+               T.Task_From_Worker.Machine_ID := Machine_ID;
+            
+               select
+                  Workers(T.Worker_ID).Notifications_Entry(True);
+               or 
+                  delay 0.1;
+               end select;
+               
+               R := Float_Random_Generator;
+               if R <= Breakdown_Probabilty then
+                  Is_Broken := True;
+               end if; 
+            or
+               accept Repair  do
+                  Is_Broken := False;
+               end Repair; 
             end select;
 
-            delay Multiplying_Machine_Delay;
-            T.Task_From_Worker.Result := T.Task_From_Worker.First_Arg * T.Task_From_Worker.Second_Arg;
-            T.Task_From_Worker.Machine_ID := Machine_ID;
-            
-            select
-               Workers(T.Worker_ID).Notifications_Entry(True);
-            or 
-               delay 0.1;
-            end select;
+
          end loop;
       end Multiplying_Machine;
       
@@ -243,7 +309,99 @@ package body Corporation is
 	 
       end Magazine_Server;
          
+      protected body Repair_Service is
+         entry Report_Breakdown(Report : in Breakdown_Report) 
+           when True 
+         is
+         begin
+            if not Contains(Machines_To_Repair, Report) and 
+              not Contains(Machines_In_Repair, Report) then
+               Machines_To_Repair.Append(Report);
+            end if;
+            
+         end Report_Breakdown;
+         
+         entry Get_Repair_Task(Repair : out Repair_Task)
+           when True
+         is
+            Report : Breakdown_Report;
+            Task_For_Repairer : Repair_Task;
+         begin
+            if Machines_To_Repair.Length /= 0 then
+               Report := Machines_To_Repair.First_Element;
+               Machines_To_Repair.Delete_First;
+               Task_For_Repairer := (Report.Machine_ID, Report.Machine_Type);
+               Repair := Task_For_Repairer;
+               Machines_In_Repair.Append(Report);
+            else
+               Repair := (-1, '/');
+            end if;
+         end Get_Repair_Task;
+         
+         entry Confirm_Repair(Confirmation : in Repair_Confirmation)
+           when True
+         is
+         begin
+            Position := Find_Position(Machines_In_Repair, Confirmation);
+            
+            if Position /= 1000 then
+               Machines_In_Repair.Delete (Position);
+            end if;
+
+         end Confirm_Repair;
+         
+         function Contains_Report(V : Reports_Vector.Vector; Report : Breakdown_Report) return Boolean
+         is
+         begin
+            for R in V.First_Index .. V.Last_Index loop
+               if V(R).Machine_ID = Report.Machine_ID and V(R).Machine_Type = Report.Machine_Type then
+                  return True;
+               end if;
+            end loop;
+            return False;
+         end Contains_Report;
+         
+         function Find_Position(V : Reports_Vector.Vector; Confirmation : Repair_Confirmation) return Natural
+         is
+         begin
+            for R in V.First_Index .. V.Last_Index loop
+               if V(R).Machine_ID = Confirmation.Machine_ID and V(R).Machine_Type = Confirmation.Machine_Type then
+                  return R;
+               end if;
+            end loop;
+            return 1000;
+         end Find_Position;
+         
+      end Repair_Service;
+      
       Magazine : Magazine_Server;
+      Service : Repair_Service;
+      
+      task body Repairer is
+         Request : Repair_Task;
+         Machine_ID : Integer;
+         Machine_Type : Character;
+         Confirmation : Repair_Confirmation;
+      begin
+         loop
+            Service.Get_Repair_Task(Request);
+            Machine_ID := Request.Machine_ID;
+            Machine_Type := Request.Machine_Type;
+            
+            if Machine_ID /= -1 then
+               delay Repirer_Delay;
+               if Machine_Type = '+' then
+                  Adding_Machines_Array (Machine_ID).Repair;
+               else
+                  Multiplying_Machines_Array (Machine_ID).Repair;
+               end if;
+               Confirmation := (Machine_ID, Machine_Type);
+               Service.Confirm_Repair(Confirmation);
+               
+               Put_Line ("***Repairer " & ID'Image & " repaired " & Machine_Type & " machine with ID " & Machine_ID'Image);
+            end if;
+         end loop;
+      end Repairer;
       
       task body Worker is
          subtype Random_Range is Integer range 0 .. 1;
@@ -259,6 +417,7 @@ package body Corporation is
          Tasks_Done : Integer := 0;
          Task_Accepted : Boolean;
          Machine_ID : Integer := -1;
+         Report : Breakdown_Report;
       begin
          Random_Type := Random_Generator(0, 1);
          
@@ -299,8 +458,15 @@ package body Corporation is
                               accept Notifications_Entry (Notification : in Boolean) do
                                  Result := New_Task_Pointer.Result;
                                  Machine_ID := New_Task_Pointer.Machine_ID;
-                                 Result_Found := True;
-                                 Tasks_Done := Tasks_Done + 1;
+                                 
+                                 -- Send Report
+                                 if Result = -1 then
+                                    Report := (Machine_ID, New_Task.Operator);
+                                    Service.Report_Breakdown(Report);
+                                 else
+                                     Result_Found := True;
+                                    Tasks_Done := Tasks_Done + 1;
+                                 end if;
                               end Notifications_Entry;
                            end if;
                            exit when Result_Found;
@@ -326,8 +492,16 @@ package body Corporation is
                               accept Notifications_Entry (Notification : in Boolean) do
                                  Result := New_Task_Pointer.Result;
                                  Machine_ID := New_Task_Pointer.Machine_ID;
-                                 Result_Found := True;
-                                 Tasks_Done := Tasks_Done + 1;
+                                 
+                                 -- Send Report
+                                 if Result = -1 then
+                                    Report := (Machine_ID, New_Task.Operator);
+                                    Service.Report_Breakdown(Report);
+                                 else
+                                    Result_Found := True;
+                                    Tasks_Done := Tasks_Done + 1;
+                                 end if;
+                                 
                               end Notifications_Entry;
                            end if;
                            exit when Result_Found;
@@ -339,39 +513,53 @@ package body Corporation is
             else 
                case New_Task.Operator is
                   when '+' =>
-                     Index := Random_Generator(0, Num_Of_Adding_Machines);
                      
-                     New_Task_Pointer := new Corpo_Task'(New_Task.First_Arg, New_Task.Second_Arg, New_Task.Operator, New_Task.Result, New_Task.Machine_ID);
-                     Task_To_Do := (New_Task_Pointer, ID);
-                     Adding_Machines_Array (Index).Task_Stream(Task_To_Do);
                      Result_Found := False;
                      
                      while not Result_Found loop
+                        Index := Random_Generator(0, Num_Of_Adding_Machines);
+                     
+                        New_Task_Pointer := new Corpo_Task'(New_Task.First_Arg, New_Task.Second_Arg, New_Task.Operator, New_Task.Result, New_Task.Machine_ID);
+                        Task_To_Do := (New_Task_Pointer, ID);
+                        Adding_Machines_Array (Index).Task_Stream(Task_To_Do);
                         select
                            accept Notifications_Entry (Notification : in Boolean) do
                               Result := New_Task_Pointer.Result;
                               Machine_ID := New_Task_Pointer.Machine_ID;
-                              Result_Found := True;
-                              Tasks_Done := Tasks_Done + 1;
+                              
+                              -- Send Report
+                              if Result = -1 then
+                                 Report := (Machine_ID, New_Task.Operator);
+                                 Service.Report_Breakdown(Report);
+                              else
+                                 Result_Found := True;
+                                 Tasks_Done := Tasks_Done + 1;
+                              end if;
                            end Notifications_Entry;
                         end select;
                      end loop;
                   when '*' =>
-                     
-                     Index := Random_Generator(0, Num_Of_Multiplying_Machines);
-                     New_Task_Pointer := new Corpo_Task'(New_Task.First_Arg, New_Task.Second_Arg, New_Task.Operator, New_Task.Result, New_Task.Machine_ID);
-                     Task_To_Do := (New_Task_Pointer, ID);
-                     Multiplying_Machines_Array (Index).Task_Stream(Task_To_Do);
-                     
                      Result_Found := False;
                      
                      while not Result_Found loop
+                        Index := Random_Generator(0, Num_Of_Multiplying_Machines);
+                     New_Task_Pointer := new Corpo_Task'(New_Task.First_Arg, New_Task.Second_Arg, New_Task.Operator, New_Task.Result, New_Task.Machine_ID);
+                     Task_To_Do := (New_Task_Pointer, ID);
+                     Multiplying_Machines_Array (Index).Task_Stream(Task_To_Do);
                         select
                            accept Notifications_Entry (Notification : in Boolean) do
                               Result := New_Task_Pointer.Result;
                               Machine_ID := New_Task_Pointer.Machine_ID;
-                              Result_Found := True;
-                              Tasks_Done := Tasks_Done + 1;
+                              
+                              -- Send Report
+                              if Result = -1 then
+                                 Report := (Machine_ID, New_Task.Operator);
+                                 Service.Report_Breakdown(Report);
+                              else
+                                 Result_Found := True;
+                                 Tasks_Done := Tasks_Done + 1;
+                              end if;
+                              
                            end Notifications_Entry;
                         end select;
                      end loop;
@@ -432,10 +620,11 @@ package body Corporation is
 	    end case;
 	 end loop;
       end Listener;
-     
+      
       New_Boss : Boss;
       New_Client : Client_Access;
       New_Listener : Listener_Access;
+      New_Repairer : Repairer_Access;
       
    begin
       if not Is_Verbose_Mode_ON then
@@ -457,5 +646,10 @@ package body Corporation is
       for I in 0 .. Num_Of_Clients loop
          New_Client := new Client (I);
       end loop;
+      
+      for I in 0 .. Num_Of_Repairers loop
+         New_Repairer := new Repairer (I);
+      end loop;
+      
    end Production;
 end Corporation;

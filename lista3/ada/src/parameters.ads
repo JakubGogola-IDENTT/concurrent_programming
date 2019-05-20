@@ -7,6 +7,7 @@ package Parameters is
    -- Delays
    Worker_Delay      : constant Duration := 3.5;
    Client_Delay      : constant Duration := 8.0;
+   Repirer_Delay     : constant Duration := 1.0;
    Adding_Machine_Delay : constant Duration := 1.0;
    Multiplying_Machine_Delay : constant Duration := 3.0;
    Impatient_Worker_Delay : constant := 0.5;
@@ -16,10 +17,13 @@ package Parameters is
    -- Numbers
    Num_Of_Workers    : constant Integer := 4;
    Num_Of_Clients    : constant Integer := 6;
+   Num_Of_Repairers  : constant Integer := 4;
    Num_Of_Adding_Machines : constant Integer := 3;
    Num_Of_Multiplying_Machines : constant Integer := 3;
    
    -- Verbose mode flag
    Is_Verbose_Mode_ON : Boolean := True;
+   
+   Breakdown_Probabilty : constant Float := 0.5;
 
 end Parameters;

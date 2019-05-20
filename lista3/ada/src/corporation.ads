@@ -18,6 +18,21 @@ package Corporation is
       Worker_ID : Integer;
    end record;
       
+   type Breakdown_Report is record
+      Machine_ID : Integer;
+      Machine_Type : Character;
+   end record;
+  
+   type Repair_Task is record
+      Machine_ID : Integer;
+      Machine_Type : Character;
+   end record;
+   
+   type Repair_Confirmation is record
+      Machine_ID : Integer;
+      Machine_Type : Character;
+   end record;      
+      
    -- Arrays
    type Tasks_To_Do is array (Integer range<>) of Corpo_Task;
    type Products is array (Integer range<>) of Product;
