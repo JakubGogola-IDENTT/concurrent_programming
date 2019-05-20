@@ -7,7 +7,8 @@ import (
 )
 
 // repairer reapirs machines (really intelligent description)
-func repiarer(repairerID int, reapir chan<- repairRequest, addRepairChannels []chan struct{}, multiplyRepairChannels []chan struct{}) {
+func repiarer(repairerID int, reapir chan<- repairRequest, addRepairChannels []chan struct{}, multiplyRepairChannels []chan struct{},
+	confirm chan<- repairConfirmation) {
 	for {
 		// send request for repair
 		responseChannel := make(chan repairTask)
@@ -26,10 +27,13 @@ func repiarer(repairerID int, reapir chan<- repairRequest, addRepairChannels []c
 				multiplyRepairChannels[response.machineID] <- struct{}{}
 			}
 
+			confirmation := repairConfirmation{response.machineID, response.machineType}
+
+			confirm <- confirmation
+
 			if params.IsVerboseModeOn {
 				fmt.Printf("\u001b[35mRepairer\u001b[0m %d repaired %c machine with id %d\n", repairerID, response.machineType, response.machineID)
 			}
-
 		} else {
 			continue
 		}

@@ -47,6 +47,12 @@ type breakdownReport struct {
 	machineType byte
 }
 
+// repairConfirmation is confirmation of repair
+type repairConfirmation struct {
+	machineID   int
+	machineType byte
+}
+
 type repairTask struct {
 	machineID   int
 	machineType byte

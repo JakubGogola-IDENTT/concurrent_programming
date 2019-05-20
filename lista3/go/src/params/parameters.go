@@ -58,7 +58,7 @@ const BreakdownProbability = 0.3
 
 // GetBossDelay returns random delay for president
 func GetBossDelay() time.Duration {
-	delaySeed := 4
+	delaySeed := 5
 	return time.Duration(rand.Intn(delaySeed)) * time.Second
 }
 

@@ -1,12 +1,14 @@
 package corporation
 
 // reapirService sends tasks for repairers
-func reapirService(reports <-chan breakdownReport, repairs <-chan repairRequest) {
+func reapirService(reports <-chan breakdownReport, repairs <-chan repairRequest, confirm <-chan repairConfirmation) {
 	machinesToRepair := make([]breakdownReport, 0)
+	machinesInRepair := make([]breakdownReport, 0)
+
 	for {
 		select {
 		case r := <-reports:
-			if !contains(r, machinesToRepair) {
+			if !contains(r.machineID, r.machineType, machinesToRepair) && !contains(r.machineID, r.machineType, machinesInRepair) {
 				machinesToRepair = append(machinesToRepair, r)
 			}
 		case r := <-repairs:
@@ -17,17 +19,25 @@ func reapirService(reports <-chan breakdownReport, repairs <-chan repairRequest)
 
 				r.response <- response
 				machinesToRepair = machinesToRepair[1:]
+				machinesInRepair = append(machinesInRepair, machine)
+
 			} else {
 				response := repairTask{-1, '/'}
 				r.response <- response
+			}
+		case c := <-confirm:
+			for i, m := range machinesInRepair {
+				if m.machineID == c.machineID && m.machineType == c.machineType {
+					machinesInRepair = append(machinesInRepair[:i], machinesInRepair[i+1:]...)
+				}
 			}
 		}
 	}
 }
 
-func contains(report breakdownReport, arr []breakdownReport) bool {
+func contains(machineID int, machineType byte, arr []breakdownReport) bool {
 	for _, item := range arr {
-		if item.machineID == report.machineID && item.machineType == report.machineType {
+		if item.machineID == machineID && item.machineType == machineType {
 			return true
 		}
 	}
