@@ -12,13 +12,16 @@ var IsVerboseModeOn = true
 const Bound = 2137
 
 // WorkerDelay is delay of single worker
-const WorkerDelay = 5 * time.Second
+const WorkerDelay = 4 * time.Second
 
 // ImpatientWorkerDelay is delay of impatient worker
 const ImpatientWorkerDelay = 2 * time.Second
 
 // ClientDelay is delay of client
 const ClientDelay = 15 * time.Second
+
+// RepairerDelay is delay of repairer
+const RepairerDelay = 5 * time.Second
 
 // NumOfAddingMachines is number of adding machines
 const NumOfAddingMachines = 3
@@ -40,6 +43,9 @@ const NumOfWorkers = 6
 
 // NumOfClients is number of currently active clients
 const NumOfClients = 8
+
+// NumOfRepirers is number of currently active repairer
+const NumOfRepirers = 4
 
 // SizeOfList is size of list with tasks
 const SizeOfList = 10

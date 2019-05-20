@@ -21,14 +21,7 @@ func addingMachine(machineID int, taskStream <-chan taskForMachine, accept <-cha
 			// give access to worker
 			request.response <- struct{}{}
 
-			// fmt.Println(isBroken)
-			// fmt.Println(<-taskStream)
-
-			// _, isAlive := <-request.isAlive
-			// isAlive = true
-			// if isAlive {
 			waitAndDoTask(machineID, taskStream, params.AddingMachineDelay, isBroken)
-			// }
 
 			r := rand.Float32()
 			if r <= params.BreakdownProbability {
@@ -55,11 +48,8 @@ func multiplyingMachine(machineID int, taskStream <-chan taskForMachine, accept 
 		case request := <-accept:
 			// give access to worker
 			request.response <- struct{}{}
-			// _, isAlive := <-request.isAlive
-			// isAlive = true
-			// if isAlive {
+
 			waitAndDoTask(machineID, taskStream, params.MultiplyingMachineDelay, isBroken)
-			// }
 
 			r := rand.Float32()
 			if r <= params.BreakdownProbability {

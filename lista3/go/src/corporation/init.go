@@ -59,6 +59,10 @@ func Init() {
 	tasksServerInfoChannel := make(chan struct{})
 	magazineServerInfoChannel := make(chan struct{})
 
+	// Channels for repair service
+	reportsChannel := make(chan breakdownReport)
+	repairsChannel := make(chan repairRequest)
+
 	// Start servers for tasks list and stored products list.
 	go tasksServer(workerTaskRequestsChannel, bossNewTasksChannel, tasksServerInfoChannel)
 	go magazineServer(workerNewProductsChannel, clientPurchaseChannel, magazineServerInfoChannel)
@@ -66,17 +70,25 @@ func Init() {
 	// Start boss.
 	go boss(bossNewTasksChannel)
 
+	// Start repair service
+	go reapirService(reportsChannel, repairsChannel)
+
 	workersInfoChannels := make([]chan struct{}, params.NumOfWorkers)
 
 	// Start workers
 	for i := 0; i < params.NumOfWorkers; i++ {
 		workersInfoChannels[i] = make(chan struct{})
-		go worker(i, workerTaskRequestsChannel, workerNewProductsChannel, channels, workersInfoChannels[i])
+		go worker(i, workerTaskRequestsChannel, workerNewProductsChannel, channels, reportsChannel, workersInfoChannels[i])
 	}
 
 	// Start clients
 	for i := 0; i < params.NumOfClients; i++ {
 		go client(i, clientPurchaseChannel)
+	}
+
+	// Start repairers
+	for i := 0; i < params.NumOfRepirers; i++ {
+		go repiarer(i, repairsChannel, channels.addRepairChannels, channels.multiplyRepairChannels)
 	}
 
 	if params.IsVerboseModeOn {

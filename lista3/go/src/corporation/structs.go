@@ -41,6 +41,22 @@ type acceptRequest struct {
 	isAlive  chan struct{}
 }
 
+// breakdownReport is struct for worker to send info about machine breakdown
+type breakdownReport struct {
+	machineID   int
+	machineType byte
+}
+
+type repairTask struct {
+	machineID   int
+	machineType byte
+}
+
+// repairRequest is repairer's request for repair
+type repairRequest struct {
+	response chan repairTask
+}
+
 // machineChannels is struct with arrays containing I/O channels for multiplying and adding machines
 // addMachineChannels is array with channels for adding machines
 // multiplyMchineChannels is array with channels for multilpying machines
