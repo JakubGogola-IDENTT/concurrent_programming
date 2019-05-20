@@ -63,7 +63,6 @@ func multiplyingMachine(machineID int, taskStream <-chan taskForMachine, accept 
 }
 
 func waitAndDoTask(machineID int, taskStream <-chan taskForMachine, delay time.Duration, isBroken bool) {
-	//FIXME: probably can do it better
 	select {
 	case task := <-taskStream:
 		workerTask := task.taskFromWorker

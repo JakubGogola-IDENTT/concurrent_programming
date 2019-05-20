@@ -1,7 +1,5 @@
 package corporation
 
-import "fmt"
-
 // reapirService sends tasks for repairers
 func reapirService(reports <-chan breakdownReport, repairs <-chan repairRequest) {
 	machinesToRepair := make([]breakdownReport, 0)
@@ -10,8 +8,6 @@ func reapirService(reports <-chan breakdownReport, repairs <-chan repairRequest)
 		case r := <-reports:
 			if !contains(r, machinesToRepair) {
 				machinesToRepair = append(machinesToRepair, r)
-			} else {
-				fmt.Println("Contains!")
 			}
 		case r := <-repairs:
 			// if there are broken machines send task for repairer
