@@ -121,6 +121,7 @@ func patientMode(taskToDo *task, workerID int, machines []chan taskForMachine, a
 	// Get random machine to do task
 	for {
 		r := rand.Intn(len(machines))
+
 		request := acceptRequest{make(chan struct{}), make(chan struct{})}
 		accept[r] <- request
 
